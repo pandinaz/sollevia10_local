@@ -1,15 +1,16 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, ChevronLeft, ChevronRight, Mic, PlayCircle, PauseCircle, ExternalLink, AlertCircle, Video, Volume2, Heart, Plus, Trash2 } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, Mic, PlayCircle, PauseCircle, ExternalLink, AlertCircle, Video, Volume2, Heart, Plus, Trash2, Loader } from 'lucide-react';
 import { Module, SubModule, ScreenName, Habit } from '../types';
-import { 
-  getFavorites, 
-  toggleFavorite as toggleFavService, 
-  getHabits, 
+import {
+  getFavorites,
+  toggleFavorite as toggleFavService,
+  getHabits,
   saveHabit as saveHabitService,
   deleteHabit as deleteHabitService,
   saveProgress
 } from '../services/userData';
+import { speakText, stopSpeaking } from '../services/ttsService';
 
 interface ModuleContentScreenProps {
   module: Module;
@@ -23,12 +24,12 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
   const [audioError, setAudioError] = useState<string | null>(null);
   const [videoError, setVideoError] = useState<string | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
-  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [isTtsLoading, setIsTtsLoading] = useState(false);
+  const [ttsError, setTtsError] = useState<string | null>(null);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [showAddHabitModal, setShowAddHabitModal] = useState(false);
   
-  const speechRef = useRef<SpeechSynthesisUtterance | null>(null);
   const widgetContainerRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -77,19 +78,6 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
 
   // --- END COMPLETION LOGIC ---
 
-  // Load voices - Chrome loads asynchronously
-  useEffect(() => {
-    const updateVoices = () => {
-      const voices = window.speechSynthesis.getVoices();
-      setAvailableVoices(voices);
-    };
-
-    updateVoices();
-    
-    if (window.speechSynthesis.onvoiceschanged !== undefined) {
-      window.speechSynthesis.onvoiceschanged = updateVoices;
-    }
-  }, []);
 
   // Load favorites and habits from centralized service
   useEffect(() => {
@@ -97,11 +85,12 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
     setHabits(getHabits());
   }, []);
 
-  // Cleanup speech on unmount or step change
+  // Cleanup TTS on unmount or step change
   useEffect(() => {
     return () => {
-      window.speechSynthesis.cancel();
+      stopSpeaking();
       setIsSpeaking(false);
+      setIsTtsLoading(false);
     };
   }, [currentStep, subModule]);
 
@@ -131,7 +120,8 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
   }, [step]);
 
   const handleNext = () => {
-    window.speechSynthesis.cancel(); 
+    stopSpeaking();
+    setIsSpeaking(false);
     if (currentStep < totalSteps - 1) {
       setCurrentStep(prev => prev + 1);
     } else {
@@ -140,7 +130,8 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
   };
 
   const handlePrev = () => {
-    window.speechSynthesis.cancel();
+    stopSpeaking();
+    setIsSpeaking(false);
     if (currentStep > 0) {
       setCurrentStep(prev => prev - 1);
     }
@@ -152,7 +143,8 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
 
     if (!activeReflectionPrompt) return;
     
-    window.speechSynthesis.cancel();
+    stopSpeaking();
+    setIsSpeaking(false);
     onNavigate('module_reflection', { 
       initialMessage: activeReflectionPrompt,
       title: `Reflection: ${isSubModuleMode ? subModule?.title : module.title}`,
@@ -162,38 +154,30 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
     });
   };
 
-  const toggleSpeech = () => {
+  const toggleSpeech = async () => {
     if (!step) return;
     const textToSpeak = step.audioScript || step.content;
     if (!textToSpeak) return;
 
     if (isSpeaking) {
-      window.speechSynthesis.cancel();
+      stopSpeaking();
       setIsSpeaking(false);
     } else {
-      const utterance = new SpeechSynthesisUtterance(textToSpeak);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-      
-      utterance.lang = 'en-US';
-
-      // Advanced Voice Selection Strategy
-      let preferredVoice = availableVoices.find(v => v.name === 'Google US English');
-      if (!preferredVoice) preferredVoice = availableVoices.find(v => v.name === 'Samantha');
-      if (!preferredVoice) preferredVoice = availableVoices.find(v => v.name.includes('Microsoft Zira'));
-      if (!preferredVoice) preferredVoice = availableVoices.find(v => v.lang === 'en-US' && !v.name.includes('Microsoft')); 
-      if (!preferredVoice) preferredVoice = availableVoices.find(v => v.lang.startsWith('en'));
-
-      if (preferredVoice) {
-        utterance.voice = preferredVoice;
-      }
-
-      utterance.rate = 0.95; 
-      utterance.pitch = 1.0;
-      
-      speechRef.current = utterance;
-      window.speechSynthesis.speak(utterance);
-      setIsSpeaking(true);
+      setTtsError(null);
+      setIsTtsLoading(true);
+      await speakText(textToSpeak, {
+        onStart: () => {
+          setIsTtsLoading(false);
+          setIsSpeaking(true);
+        },
+        onEnd: () => setIsSpeaking(false),
+        onError: (err) => {
+          console.error('[TTS] Error:', err);
+          setIsTtsLoading(false);
+          setIsSpeaking(false);
+          setTtsError(err);
+        },
+      });
     }
   };
 
@@ -389,18 +373,28 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
 
                     <button
                         onClick={toggleSpeech}
+                        disabled={isTtsLoading}
                         className={`shrink-0 p-2 rounded-full transition-colors ${
-                          isSpeaking 
-                            ? 'bg-indigo-100 text-indigo-600' 
+                          isTtsLoading
+                            ? 'bg-indigo-50 text-indigo-400 cursor-wait'
+                            : isSpeaking
+                            ? 'bg-indigo-100 text-indigo-600'
                             : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-100'
                         }`}
-                        aria-label={isSpeaking ? "Stop reading" : "Read aloud"}
+                        aria-label={isTtsLoading ? "Loading audio..." : isSpeaking ? "Stop reading" : "Read aloud"}
                     >
-                        {isSpeaking ? <PauseCircle size={24} /> : <Volume2 size={24} />}
+                        {isTtsLoading ? <Loader size={24} className="animate-spin" /> : isSpeaking ? <PauseCircle size={24} /> : <Volume2 size={24} />}
                     </button>
                   </div>
               </div>
               
+              {ttsError && (
+                <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm flex items-start gap-2">
+                  <AlertCircle size={16} className="shrink-0 mt-0.5" />
+                  <span>TTS error: {ttsError}</span>
+                </div>
+              )}
+
               {step.videoPosition === 'above-text' && VideoPlayer}
 
               <div className="text-slate-600 text-lg leading-relaxed mb-6 whitespace-pre-line">

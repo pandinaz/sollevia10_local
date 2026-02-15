@@ -5,7 +5,8 @@ const KEYS = {
   FAVORITES: 'sollevia_favorites',
   HABITS: 'sollevia_habits',
   USER_ID: 'sollevia_user_id',
-  PROGRESS: 'sollevia_progress'
+  PROGRESS: 'sollevia_progress',
+  TTS_ENABLED: 'sollevia_tts_enabled'
 };
 
 export interface Progress {
@@ -121,6 +122,17 @@ export const toggleHabitCompletion = (id: string, dateStr: string): Habit[] => {
   });
   safeSetItem(KEYS.HABITS, JSON.stringify(newHabits));
   return newHabits;
+};
+
+/**
+ * TTS Preference
+ */
+export const getTtsEnabled = (): boolean => {
+  return safeGetItem(KEYS.TTS_ENABLED) === 'true';
+};
+
+export const setTtsEnabled = (enabled: boolean): void => {
+  safeSetItem(KEYS.TTS_ENABLED, enabled.toString());
 };
 
 /**

@@ -43,6 +43,12 @@
           scrollbar-width: none;  /* Firefox */
       }
 
+      /* Voice recording overlay slide-up animation */
+      @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to   { transform: translateY(0); }
+      }
+
       /* V-1: Grain/noise texture overlay */
       .grain-overlay::after {
         content: '';
