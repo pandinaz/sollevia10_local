@@ -1,0 +1,7 @@
+{
+  "name": "Sollevia_10",
+  "description": "An AI-driven coaching app for chronic pain management based on the biopsychosocial model.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
