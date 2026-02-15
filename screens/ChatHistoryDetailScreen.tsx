@@ -63,7 +63,7 @@ const ChatHistoryDetailScreen: React.FC<ChatHistoryDetailScreenProps> = ({ recor
            <h3 className="text-xl font-bold mb-3 text-slate-800">Actionable Steps</h3>
            <div className="space-y-3">
              {record.actions.map((action, index) => (
-               <div key={index} className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between group cursor-pointer hover:shadow-md hover:border-indigo-100 transition-all shadow-sm">
+               <div key={index} className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between group cursor-pointer hover:shadow-card-hover hover:border-indigo-100 transition-all shadow-card">
                  <span className="text-slate-700 font-medium pr-4">{action}</span>
                  <ArrowRightCircle className="text-slate-300 group-hover:text-indigo-600 shrink-0 transition-colors" size={24} strokeWidth={1.5} />
                </div>
@@ -96,7 +96,7 @@ const ChatHistoryDetailScreen: React.FC<ChatHistoryDetailScreenProps> = ({ recor
                           <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed ${
                               msg.sender === 'user' 
                               ? 'bg-indigo-600 text-white rounded-br-none shadow-md shadow-indigo-100' 
-                              : 'bg-white border border-slate-200 text-slate-700 rounded-bl-none shadow-sm'
+                              : 'bg-white border border-slate-200 text-slate-700 rounded-bl-none shadow-card'
                           }`}>
                               {msg.text}
                           </div>

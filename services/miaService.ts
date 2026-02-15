@@ -19,7 +19,84 @@ export interface AgentConfig {
 }
 
 /**
+ * Reads an SSE (Server-Sent Events) stream and invokes the callback with
+ * each text delta. Returns the full accumulated text.
+ */
+async function consumeSSEStream(
+  body: ReadableStream<Uint8Array>,
+  onStreamUpdate: (textDelta: string, audioDelta: string) => void
+): Promise<string> {
+  const reader = body.getReader();
+  const decoder = new TextDecoder('utf-8');
+  let fullText = '';
+  let buffer = '';
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      // SSE events are separated by double newlines
+      const parts = buffer.split('\n\n');
+      buffer = parts.pop() || '';
+
+      for (const part of parts) {
+        for (const line of part.split('\n')) {
+          if (!line || line.startsWith(':')) continue;
+
+          if (line.startsWith('data: ')) {
+            const data = line.slice(6);
+            if (data.trim() === '[DONE]') return fullText;
+
+            try {
+              const parsed = JSON.parse(data);
+              const delta = parsed.choices?.[0]?.delta?.content;
+              if (delta) {
+                fullText += delta;
+                onStreamUpdate(delta, '');
+              }
+            } catch {
+              // Non-JSON data line — treat as plain text
+              const trimmed = data.trim();
+              if (trimmed) {
+                fullText += trimmed;
+                onStreamUpdate(trimmed, '');
+              }
+            }
+          }
+        }
+      }
+    }
+
+    // Flush remaining buffer
+    if (buffer.trim()) {
+      for (const line of buffer.split('\n')) {
+        if (line.startsWith('data: ')) {
+          const data = line.slice(6);
+          if (data.trim() === '[DONE]') break;
+          try {
+            const parsed = JSON.parse(data);
+            const delta = parsed.choices?.[0]?.delta?.content;
+            if (delta) {
+              fullText += delta;
+              onStreamUpdate(delta, '');
+            }
+          } catch { /* ignore trailing parse errors */ }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  return fullText;
+}
+
+/**
  * Sends a message to the Mia21 API.
+ * Uses SSE streaming when onStreamUpdate is provided and the API supports it.
  * Falls back to mock data if no API Key is provided or if the request fails.
  */
 export const sendMessageToMia = async (
@@ -28,37 +105,46 @@ export const sendMessageToMia = async (
   onStreamUpdate?: (textDelta: string, audioDelta: string) => void,
   agentConfig?: AgentConfig
 ): Promise<ChatResponse> => {
-  
+
   // 1. Fallback to Mock if no API Key is configured
   if (!MIA_API_KEY) {
     console.log("No MIA_API_KEY found, using mock response.");
     const text = await generateMockResponse([]);
     // Simulate streaming for the UI
     if (onStreamUpdate) {
-        const chunks = text.match(/.{1,5}/g) || [text];
-        for (const chunk of chunks) {
-            await new Promise(r => setTimeout(r, 50));
-            onStreamUpdate(chunk, "");
+        const words = text.split(/(\s+)/);
+        for (let i = 0; i < words.length; i += 2) {
+            const chunk = words.slice(i, i + 2).join('');
+            if (chunk) {
+                onStreamUpdate(chunk, '');
+                await new Promise(r => setTimeout(r, 30));
+            }
         }
     }
     return { text, source: 'mock', error: 'Missing API Key' };
   }
 
+  const wantStreaming = !!onStreamUpdate;
+
   const performChatRequest = async () => {
+    const bodyPayload: Record<string, unknown> = {
+        messages: [
+          { role: 'user', content: message }
+        ],
+        space_id: agentConfig?.spaceId || MIA_SPACE_ID,
+        bot_id: agentConfig?.botId || MIA_BOT_ID,
+        user_id: agentConfig?.userId || getUserId()
+    };
+    if (wantStreaming) {
+        bodyPayload.stream = true;
+    }
     return fetch(MIA_API_URL, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-API-Key': MIA_API_KEY
         },
-        body: JSON.stringify({
-            messages: [
-              { role: 'user', content: message }
-            ],
-            space_id: agentConfig?.spaceId || MIA_SPACE_ID,
-            bot_id: agentConfig?.botId || MIA_BOT_ID,
-            user_id: agentConfig?.userId || getUserId()
-        })
+        body: JSON.stringify(bodyPayload)
     });
   };
 
@@ -68,12 +154,10 @@ export const sendMessageToMia = async (
 
     // Check for "Chat not initialized" error
     if (response.status === 404) {
-        // Clone response to read text without consuming the original body if we need to return it later
         const errorText = await response.text();
-        
+
         if (errorText.includes("Chat not initialized")) {
             console.log("Chat not initialized. Attempting initialization...");
-            // Auto-initialize
             const initResponse = await fetch(MIA_INIT_URL, {
                 method: 'POST',
                 headers: {
@@ -95,7 +179,6 @@ export const sendMessageToMia = async (
             // Retry the original chat request
             response = await performChatRequest();
         } else {
-             // It was a real 404, throw it
              throw new Error(`API Error 404: ${errorText}`);
         }
     }
@@ -110,21 +193,46 @@ export const sendMessageToMia = async (
         throw new Error(`API Error ${response.status}: ${errorBody}`);
     }
 
+    // --- STREAMING PATH ---
+    // Use SSE streaming if we requested it AND the response isn't plain JSON
+    const contentType = response.headers.get('content-type') || '';
+    const isStreamResponse = wantStreaming && response.body && !contentType.includes('application/json');
+
+    if (isStreamResponse && response.body && onStreamUpdate) {
+        let accumulatedText = '';
+        try {
+            accumulatedText = await consumeSSEStream(response.body, onStreamUpdate);
+        } catch (streamError) {
+            console.warn('SSE streaming failed mid-stream:', streamError);
+        }
+
+        if (accumulatedText) {
+            return { text: accumulatedText, source: 'api' };
+        }
+        // Stream returned nothing — fall to mock via throw
+        throw new Error('SSE stream returned no content');
+    }
+
+    // --- NON-STREAMING PATH ---
     const data = await response.json();
-    
-    // Extract text content from likely response fields
-    // We try OpenAI format first, then custom Mia fields
+
     let textContent = '';
-    
     if (data.choices && Array.isArray(data.choices) && data.choices[0]?.message?.content) {
        textContent = data.choices[0].message.content;
     } else {
        textContent = data.response || data.message || data.text || (typeof data === 'string' ? data : JSON.stringify(data));
     }
-    
-    // Pass the full response to the updater
+
     if (onStreamUpdate) {
-        onStreamUpdate(textContent, "");
+        // Simulate streaming by emitting words progressively
+        const words = textContent.split(/(\s+)/);
+        for (let i = 0; i < words.length; i += 2) {
+            const chunk = words.slice(i, i + 2).join('');
+            if (chunk) {
+                onStreamUpdate(chunk, '');
+                await new Promise(r => setTimeout(r, 30));
+            }
+        }
     }
 
     return { text: textContent, source: 'api' };
@@ -132,10 +240,19 @@ export const sendMessageToMia = async (
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     console.error("Mia21 Connection failed, falling back to mock:", errorMessage);
-    
+
     // Graceful degradation
     const text = await generateMockResponse([]);
-    if (onStreamUpdate) onStreamUpdate(text, "");
+    if (onStreamUpdate) {
+        const words = text.split(/(\s+)/);
+        for (let i = 0; i < words.length; i += 2) {
+            const chunk = words.slice(i, i + 2).join('');
+            if (chunk) {
+                onStreamUpdate(chunk, '');
+                await new Promise(r => setTimeout(r, 30));
+            }
+        }
+    }
     return { text, source: 'mock', error: errorMessage };
   }
 };

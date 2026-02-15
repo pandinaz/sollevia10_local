@@ -269,7 +269,7 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
 
   const VideoPlayer = step.videoUrl ? (
     <div className="mb-8 w-full">
-        <div className="bg-black rounded-xl overflow-hidden shadow-sm relative">
+        <div className="bg-black rounded-xl overflow-hidden shadow-card relative">
             <div className="aspect-video w-full relative">
                 {isYouTube(step.videoUrl) ? (
                     <iframe 
@@ -322,7 +322,7 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
   return (
     <div className="bg-slate-50 min-h-screen text-slate-900 flex flex-col max-w-md mx-auto relative">
       {/* Header */}
-      <header className="relative flex justify-end items-center px-6 py-4 bg-slate-50 border-b border-slate-100 z-10 shadow-sm">
+      <header className="relative flex justify-end items-center px-6 py-4 bg-slate-50 border-b border-slate-100 z-10 shadow-card">
          <h1 className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-lg font-bold text-slate-800 line-clamp-1 max-w-[70%] text-center">
             {isSubModuleMode ? subModule?.title : module.title}
          </h1>
@@ -417,7 +417,7 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
               )}
 
               {step.audioUrl && !isYouTube(step.audioUrl) && (
-                <div className="mb-8 w-full bg-white rounded-xl shadow-sm border border-slate-200 transition-all overflow-hidden">
+                <div className="mb-8 w-full bg-white rounded-xl shadow-card border border-slate-200 transition-all overflow-hidden">
                     {driveId ? (
                         // Google Drive Iframe Player (More reliable than native audio for Drive links)
                         <div className="w-full">
@@ -487,7 +487,7 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
                     
                     <div 
                       onClick={startReflection}
-                      className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 cursor-pointer active:scale-[0.99] transition-transform hover:shadow-md mb-8"
+                      className="bg-white rounded-2xl p-6 shadow-card border border-slate-200 cursor-pointer active:scale-[0.99] transition-transform hover:shadow-card-hover mb-8"
                     >
                         <p className="text-slate-800 font-medium leading-relaxed">
                             {activeReflectionPrompt}
@@ -551,7 +551,7 @@ const ModuleContentScreen: React.FC<ModuleContentScreenProps> = ({ module, subMo
             />
             
             {/* Modal Content */}
-            <div className="bg-white rounded-2xl w-full max-w-xs p-6 shadow-2xl transform transition-all scale-100 relative z-10 text-center">
+            <div className="bg-white rounded-2xl w-full max-w-xs p-6 shadow-modal transform transition-all scale-100 relative z-10 text-center">
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${isHabitAdded ? 'bg-red-100 text-red-600' : 'bg-indigo-100 text-indigo-600'}`}>
                     {isHabitAdded ? <Trash2 size={24} /> : <Plus size={24} strokeWidth={3} />}
                 </div>

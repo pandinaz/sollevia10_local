@@ -126,7 +126,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ initialMessage, onClose, 
   if (isSaving) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-slate-50 text-slate-900 animate-fade-in">
-          <div className="bg-white p-4 rounded-full shadow-lg mb-6 relative">
+          <div className="bg-white p-4 rounded-full shadow-elevated mb-6 relative">
               <div className="absolute inset-0 rounded-full border-4 border-indigo-50"></div>
               <div className="absolute inset-0 rounded-full border-4 border-indigo-600 border-t-transparent animate-spin"></div>
               <Loader className="text-indigo-600 relative z-10" size={32} />
@@ -215,7 +215,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ initialMessage, onClose, 
                 {hasInput ? (
                     <button 
                         onClick={handleSend}
-                        className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90 transition-all shadow-sm"
+                        className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center hover:opacity-90 transition-all shadow-card"
                     >
                         <ArrowUp size={18} strokeWidth={3} />
                     </button>

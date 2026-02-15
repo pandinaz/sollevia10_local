@@ -18,7 +18,7 @@ const Layout: React.FC<LayoutProps> = ({ children, onNavigate, activeScreen, hid
   ];
 
   return (
-    <div className="h-screen bg-slate-50 flex flex-col max-w-md mx-auto shadow-2xl overflow-hidden relative">
+    <div className="grain-overlay h-screen bg-slate-50 flex flex-col max-w-md mx-auto shadow-modal overflow-hidden relative">
       <main className={`flex-1 overflow-y-auto no-scrollbar ${hideNav ? '' : 'pb-24'}`}>
         {children}
       </main>

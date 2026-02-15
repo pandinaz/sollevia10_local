@@ -78,7 +78,7 @@ const ChatHistoryScreen: React.FC<ChatHistoryScreenProps> = ({ history, onBack, 
                   <div 
                     key={record.id} 
                     onClick={() => handleRecordClick(record)}
-                    className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 cursor-pointer active:scale-[0.98] transition-all hover:shadow-md group"
+                    className="bg-white rounded-2xl p-5 shadow-card border border-slate-200 cursor-pointer active:scale-[0.98] transition-all hover:shadow-card-hover group"
                   >
                     {/* Top Row: Date | Time > */}
                     <div className="flex justify-between items-center mb-3 text-xs font-semibold text-slate-900">

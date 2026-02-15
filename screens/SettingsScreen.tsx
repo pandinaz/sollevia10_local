@@ -50,7 +50,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate }) => {
         <h1 className="text-3xl font-bold text-slate-900 mb-8">Settings</h1>
         
         {/* API Status Section */}
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6">
+        <div className="bg-white rounded-2xl p-6 shadow-card border border-slate-200 mb-6">
            <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-emerald-50 rounded-lg text-emerald-600 border border-emerald-100">
               <Activity size={20} />
@@ -91,7 +91,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6">
+        <div className="bg-white rounded-2xl p-6 shadow-card border border-slate-200 mb-6">
           <div className="flex items-center gap-3 mb-6 border-b border-slate-100 pb-4">
             <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600 border border-indigo-100">
               <Shield size={20} />
@@ -107,7 +107,7 @@ const SettingsScreen: React.FC<SettingsScreenProps> = ({ onNavigate }) => {
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+        <div className="bg-white rounded-2xl p-6 shadow-card border border-slate-200">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-2 bg-slate-100 rounded-lg text-slate-500">
               <Info size={20} />

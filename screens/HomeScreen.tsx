@@ -228,7 +228,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
       <div 
         key={module.id} 
         onClick={() => onNavigate('module_detail', { module, from: viewMode })}
-        className="group flex bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden h-32 cursor-pointer hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 active:scale-[0.98]"
+        className="group flex bg-white rounded-2xl shadow-card border border-slate-100 overflow-hidden h-32 cursor-pointer hover:shadow-card-hover hover:-translate-y-0.5 transition-all duration-300 active:scale-[0.98]"
       >
         <div className="w-2/5 relative overflow-hidden bg-slate-100">
           <div className="absolute inset-0 bg-slate-200/20 z-0" />
@@ -453,7 +453,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
                          <div 
                             key={habit.id}
                             onClick={() => handleHabitClick(habit)}
-                            className={`relative flex items-center bg-white rounded-xl p-4 shadow-sm border border-slate-100 transition-all group cursor-pointer active:scale-[0.98] hover:shadow-md`}
+                            className={`relative flex items-center bg-white rounded-xl p-4 shadow-card border-l-2 border-indigo-200 transition-all group cursor-pointer active:scale-[0.98] hover:shadow-card-hover`}
                          >
                             {/* Icon */}
                             <div className={`h-12 w-12 rounded-lg flex items-center justify-center mr-4 shrink-0 ${
@@ -555,7 +555,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
 
                  <button 
                     onClick={openAddHabitModal}
-                    className="flex items-center justify-center gap-2 py-4 rounded-xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition-all active:scale-[0.98]"
+                    className="flex items-center justify-center gap-2 py-4 rounded-xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 shadow-elevated transition-all active:scale-[0.98]"
                  >
                      <Plus size={18} strokeWidth={2.5} />
                      Add Habit
@@ -597,7 +597,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
                     <div 
                         key={tech.id}
                         onClick={() => onNavigate('module_content', { module: tech.parentModule, subModule: tech, from: 'practice' })}
-                        className="flex items-center bg-white rounded-xl p-4 shadow-sm border border-slate-100 active:scale-[0.98] transition-all cursor-pointer hover:shadow-md group"
+                        className="flex items-center bg-white rounded-xl p-4 shadow-card border-l-2 border-indigo-200 active:scale-[0.98] transition-all cursor-pointer hover:shadow-card-hover group"
                     >
                         <div className="h-12 w-12 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 mr-4 shrink-0"><Wrench size={20} /></div>
                         <div className="flex-1 min-w-0">
@@ -626,7 +626,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
         {isModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
                 <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" onClick={() => setIsModalOpen(false)} />
-                <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl relative z-10 flex flex-col max-h-[85vh]">
+                <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-modal relative z-10 flex flex-col max-h-[85vh]">
                     {/* Modal Header */}
                     <div className="flex items-center justify-between mb-6">
                         {wizardStep !== 'menu' && !initialParams ? (
@@ -791,7 +791,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
       {/* Check-in Section */}
       <div className="mb-10">
         <h2 className="text-xl font-bold text-slate-900 mb-4 tracking-tight">Check-in</h2>
-        <div onClick={() => onNavigate('chat_checkin')} className="bg-white rounded-2xl p-6 mb-6 cursor-pointer active:scale-[0.98] transition-transform border border-grey-100 shadow-sm">
+        <div onClick={() => onNavigate('chat_checkin')} className="bg-white rounded-2xl p-6 mb-6 cursor-pointer active:scale-[0.98] transition-transform border-l-2 border-indigo-300 shadow-card">
           <p className="text-slate-700 leading-relaxed text-[15px] font-medium">Take a quiet moment to check-in with yourself. How are you feeling today - physically and emotionally? What's top on your mind?</p>
         </div>
         <div className="flex justify-center"><button onClick={() => onNavigate('chat_checkin')} className="w-16 h-16 rounded-full border border-slate-200 flex items-center justify-center text-indigo-600 bg-white hover:bg-slate-50 hover:border-indigo-200 transition-all shadow-md active:scale-95"><Mic size={24} /></button></div>
@@ -810,7 +810,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
                      <div 
                         key={habit.id}
                         onClick={() => handleHabitClick(habit)}
-                        className={`relative flex items-center bg-white rounded-xl p-4 shadow-sm border border-slate-100 transition-all cursor-pointer active:scale-[0.98] hover:shadow-sm`}
+                        className={`relative flex items-center bg-white rounded-xl p-4 shadow-card border-l-2 border-indigo-200 transition-all cursor-pointer active:scale-[0.98] hover:shadow-card-hover`}
                      >
                         {/* Icon */}
                         <div className={`h-10 w-10 rounded-lg flex items-center justify-center mr-3 shrink-0 ${
@@ -851,7 +851,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
             })}
           </div>
         ) : (
-             <div className="bg-white rounded-xl p-6 border border-slate-100 text-center shadow-sm">
+             <div className="bg-white rounded-xl p-6 border border-slate-100 text-center shadow-card">
                 <p className="text-slate-500 text-sm mb-3">No habits scheduled for today.</p>
                 <button 
                     onClick={() => onNavigate('practice')}

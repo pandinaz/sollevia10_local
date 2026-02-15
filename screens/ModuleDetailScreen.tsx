@@ -28,7 +28,9 @@ const ModuleDetailScreen: React.FC<ModuleDetailScreenProps> = ({ module, onNavig
       {/* Background Image */}
       <div className="absolute top-0 left-0 w-full h-2/3 z-0">
         <img src={module.thumbnailUrl} alt={module.title} className="w-full h-full object-cover opacity-80" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-50/60 to-slate-50" />
+        <div className="absolute inset-0" style={{
+          background: 'linear-gradient(to bottom, transparent 0%, rgba(79, 70, 229, 0.06) 35%, rgba(248, 250, 252, 0.65) 60%, #f8fafc 100%)'
+        }} />
       </div>
 
       {/* Navigation */}
@@ -61,7 +63,7 @@ const ModuleDetailScreen: React.FC<ModuleDetailScreenProps> = ({ module, onNavig
                  <div 
                     key={subModule.id}
                     onClick={() => onNavigate('module_content', { module, subModule, from: 'module_detail' })}
-                    className="flex items-center bg-white rounded-xl p-4 shadow-sm border border-slate-100 active:scale-[0.98] transition-all cursor-pointer hover:shadow-md"
+                    className="flex items-center bg-white rounded-xl p-4 shadow-card border-l-2 border-indigo-200 active:scale-[0.98] transition-all cursor-pointer hover:shadow-card-hover"
                  >
                     <div className="h-12 w-12 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600 mr-4 shrink-0">
                         {subModule.type === 'technique' ? <Wrench size={20} /> : <BookOpen size={20} />}
@@ -100,7 +102,7 @@ const ModuleDetailScreen: React.FC<ModuleDetailScreenProps> = ({ module, onNavig
           isAvailable ? (
             <button 
               onClick={() => onNavigate('module_content', { module, from: 'module_detail' })}
-              className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-lg transition-all shadow-lg shadow-indigo-600/20"
+              className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-lg transition-all shadow-elevated"
             >
               Start Module
             </button>
