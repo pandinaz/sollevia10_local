@@ -360,7 +360,7 @@ Engaging the mind with neutral focus can reduce pain perception and signal trans
             
 The goal is not to force relaxation, but to simply notice sensations. We might notice warmth, coolness, tingling, or tension. When we find tension, we can imagine breathing into it, allowing it to soften.`,
             imageUrl: getImg('photo-1506126613408-eca07ce68773'),
-            audioUrl: 'https://drive.google.com/file/d/1RjXPuQYUlgmRw0uw7358BwHXdYhAWwCz/view?usp=drive_link'
+            audioUrl: '/assets/audio/Body-Scan-Meditation.mp3'
         }
       },
       {
@@ -375,7 +375,7 @@ The goal is not to force relaxation, but to simply notice sensations. We might n
             
 By focusing on the rhythm of the breath, we activate the parasympathetic nervous system, signaling safety to the body and lowering the pain alarm.`,
             imageUrl: getImg('photo-1506126613408-eca07ce68773'),
-            audioUrl: 'https://drive.google.com/file/d/1SQTkZDQdFdaATpg-DFXFXT0OZGTOHurS/view?usp=drive_link'
+            audioUrl: '/assets/audio/Breathing-Meditation-Elevenlabs.mp3'
         }
       },
       {

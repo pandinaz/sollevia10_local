@@ -4,7 +4,7 @@
 
 Sollevia is a mobile-first web application for chronic pain management following the biopsychosocial model. It combines structured educational content, AI-powered coaching conversations, and daily habit tracking to help users understand and manage chronic pain.
 
-**Tech stack:** React 19, TypeScript, Vite, IndexedDB, localStorage, Mia21 AI API
+**Tech stack:** React 19, TypeScript, Vite, IndexedDB, localStorage, Mia21 AI API, ElevenLabs TTS API, OpenAI Whisper STT API
 
 ---
 
@@ -71,7 +71,7 @@ The Learn tab provides structured educational content organized by category, del
 - Modules without sub-modules show a "Start Module" button leading to sequential step navigation.
 - Progress is tracked per step index (linear modules) and per sub-module ID (modular content).
 - The step counter (e.g., "2 / 5") and navigation arrows are only shown for linear modules, not sub-modules.
-- Text-to-speech uses the `audioScript` field when available, falling back to the step's `content`.
+- Text-to-speech uses ElevenLabs API (`eleven_flash_v2_5` model, streaming endpoint) for high-quality voice output. It uses the `audioScript` field when available, falling back to the step's `content`.
 
 ---
 
@@ -117,6 +117,13 @@ The chat interface provides AI-powered coaching conversations for check-ins and 
 - **US-5.6** As a user, I want the app to work offline with mock AI responses when the API is unavailable so that I can still use the reflection feature.
 - **US-5.7** As a user, I want my chat session to be automatically summarized and saved when I close the conversation so that I can revisit my reflections later.
 - **US-5.8** As a user, I want the AI summary to include a title, short summary, themes, emotions, and actionable steps so that I get structured insights from each conversation.
+- **US-5.9** As a user, I want a speaker icon in the chat header that toggles text-to-speech on/off so that I can have bot responses read aloud automatically as they stream in.
+- **US-5.10** As a user, I want my TTS preference to persist across sessions so that I don't have to re-enable it every time.
+- **US-5.11** As a user, I want to tap the microphone button to start voice recording so that I can speak my message instead of typing.
+- **US-5.12** As a user, I want to see a dark bottom-sheet overlay with a live waveform visualization while recording so that I have visual feedback that recording is active.
+- **US-5.13** As a user, I want to send or cancel the recording from the overlay so that I have full control over the voice input.
+- **US-5.14** As a user, I want my voice recording to be transcribed (via OpenAI Whisper) and sent as a chat message so that I can have a voice-driven conversation.
+- **US-5.15** As a user, I want voice messages displayed as italic quoted text with a mic icon and recording duration so that I can distinguish them from typed messages.
 
 ### Acceptance Criteria
 
@@ -126,6 +133,11 @@ The chat interface provides AI-powered coaching conversations for check-ins and 
 - If AI summary generation fails, the app falls back to local keyword analysis (extracting themes like pain, stress, sleep and emotions like sadness, calm, gratitude from the transcript).
 - Sessions are only saved if the user sent at least one message.
 - Each module and sub-module can specify a custom `botId` and `spaceId` to use a specialized AI agent.
+- TTS in chat uses ElevenLabs `eleven_flash_v2_5` model with sentence-level chunking: text is split at sentence boundaries as it streams in, and each sentence is sent to ElevenLabs for audio generation. Sentences are prefetched and played back-to-back via an audio queue.
+- TTS preference is stored in localStorage under `sollevia_tts_enabled`.
+- Push-to-talk uses the browser `MediaRecorder` API with `getUserMedia()` for audio capture and `AudioContext` + `AnalyserNode` for live waveform visualization.
+- Voice transcription calls the OpenAI Whisper API (`/v1/audio/transcriptions`, model `whisper-1`) directly from the browser.
+- The recording overlay is positioned within the app's `max-w-md` container, not full viewport width.
 
 ---
 
@@ -192,14 +204,13 @@ Cross-cutting concerns that apply across all features.
 
 ### User Stories
 
-- **US-9.1** As a user, I want module text content read aloud using text-to-speech so that I can consume content without reading.
+- **US-9.1** As a user, I want module text content read aloud using high-quality text-to-speech (ElevenLabs) so that I can consume content without reading.
 - **US-9.2** As a user, I want to see loading states and animated indicators during AI response generation and summary creation so that I know the app is processing.
 - **US-9.3** As a user, I want the app to gracefully fall back to offline mock mode when the AI API is unreachable so that core functionality remains available.
 - **US-9.4** As a user, I want a mobile-optimized layout (max-width constrained, touch-friendly tap targets) so that the app is easy to use on a phone.
 
 ### Acceptance Criteria
 
-- Text-to-speech uses the browser's Web Speech API.
 - Mock AI responses include a simulated delay (1.5–2.5 seconds) to feel realistic.
 - The app renders within a max-width container centered on larger screens.
 

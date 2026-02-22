@@ -73,10 +73,11 @@ const App: React.FC = () => {
       case 'chat_checkin':
         // Full screen chat overlay
         return (
-          <ChatInterface 
+          <ChatInterface
             title="Check-in"
             initialMessage="Take a quiet moment to check-in with yourself. How are you feeling today – physically and emotionally?"
-            onClose={() => navigate('chat_history')} 
+            onClose={() => navigate('chat_history')}
+            ttsOn={navState.params?.ttsOn === true}
           />
         );
 

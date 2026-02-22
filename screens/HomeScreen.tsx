@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Settings, Mic, Wrench, Clock, Heart, Plus, Trash2, Check, X, Calendar, Bell, Edit3, BookOpen, ChevronRight, ArrowLeft, MoreVertical, CheckCircle, Search } from 'lucide-react';
+import { Settings, Mic, Keyboard, Wrench, Clock, Heart, Plus, Trash2, Check, X, Calendar, Bell, Edit3, BookOpen, ChevronRight, ArrowLeft, MoreVertical, CheckCircle, Search } from 'lucide-react';
 import { MODULES } from '../constants';
 import { Module, ScreenName, Habit, SubModule } from '../types';
 import { 
@@ -389,7 +389,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
     const copingModules = MODULES.filter(m => m.categoryId === 'coping');
 
     return (
-      <div className="pt-8 pb-6 min-h-screen bg-slate-50">
+      <div className="pt-8 pb-6 min-h-screen" style={{ background: 'linear-gradient(160deg, #ede9fe 0%, #dbeafe 50%, #d1fae5 100%)' }}>
         <div className="px-6 mb-6">
            <h1 className="text-3xl font-bold text-slate-900">Learning Journeys</h1>
         </div>
@@ -431,7 +431,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
     const todayStr = new Date().toISOString().split('T')[0];
 
     return (
-      <div className="px-6 pt-8 bg-slate-50 min-h-screen pb-24 relative">
+      <div className="px-6 pt-8 min-h-screen pb-24 relative" style={{ background: 'linear-gradient(160deg, #ede9fe 0%, #dbeafe 50%, #d1fae5 100%)' }}>
          <div className="flex justify-between items-end mb-6">
             <div>
                 <h1 className="text-3xl font-bold text-slate-900">Practice</h1>
@@ -782,7 +782,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
   const continueJourneyModules = [...inProgressModules, ...notStartedModules].slice(0, 3);
 
   return (
-    <div className="px-6 pt-6 pb-12 bg-slate-50 min-h-screen">
+    <div className="px-6 pt-6 pb-12 min-h-screen" style={{ background: 'linear-gradient(160deg, #ede9fe 0%, #dbeafe 50%, #d1fae5 100%)' }}>
       <div className="relative flex items-center justify-center mb-8">
          <h1 className="text-xl font-bold text-slate-900">Sollevia</h1>
          <button onClick={() => onNavigate('settings')} className="absolute right-0 text-slate-400 hover:text-slate-900 transition-colors p-2"><Settings size={24} strokeWidth={2} /></button>
@@ -794,7 +794,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
         <div onClick={() => onNavigate('chat_checkin')} className="bg-white rounded-2xl p-6 mb-6 cursor-pointer active:scale-[0.98] transition-transform border-l-2 border-indigo-300 shadow-card">
           <p className="text-slate-700 leading-relaxed text-[15px] font-medium">Take a quiet moment to check-in with yourself. How are you feeling today - physically and emotionally? What's top on your mind?</p>
         </div>
-        <div className="flex justify-center"><button onClick={() => onNavigate('chat_checkin')} className="w-16 h-16 rounded-full border border-slate-200 flex items-center justify-center text-indigo-600 bg-white hover:bg-slate-50 hover:border-indigo-200 transition-all shadow-md active:scale-95"><Mic size={24} /></button></div>
+        <div className="flex justify-center">
+          <div className="inline-flex items-center bg-white rounded-full border border-slate-200 shadow-md overflow-hidden">
+            <button onClick={() => onNavigate('chat_checkin', { ttsOn: true })} className="px-5 py-4 flex items-center justify-center text-indigo-600 hover:bg-slate-50 transition-colors active:scale-95"><Mic size={22} /></button>
+            <div className="w-px h-6 bg-slate-200" />
+            <button onClick={() => onNavigate('chat_checkin')} className="px-5 py-4 flex items-center justify-center text-indigo-600 hover:bg-slate-50 transition-colors active:scale-95"><Keyboard size={22} /></button>
+          </div>
+        </div>
       </div>
 
       {/* Today's Habits Section */}

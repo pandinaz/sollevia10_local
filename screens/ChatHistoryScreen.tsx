@@ -52,7 +52,7 @@ const ChatHistoryScreen: React.FC<ChatHistoryScreenProps> = ({ history, onBack, 
   const uniqueMonths: string[] = Array.from(new Set(sortedHistory.map(r => getDateInfo(r.id).monthYear)));
 
   return (
-    <div className="px-6 py-8 bg-slate-50 min-h-screen">
+    <div className="px-6 py-8 min-h-screen" style={{ background: 'linear-gradient(160deg, #ede9fe 0%, #dbeafe 50%, #d1fae5 100%)' }}>
       
       {/* Header */}
       <div className="mb-8">

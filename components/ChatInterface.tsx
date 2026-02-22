@@ -16,9 +16,10 @@ interface ChatInterfaceProps {
   title: string;
   botId?: string;
   spaceId?: string;
+  ttsOn?: boolean;
 }
 
-const ChatInterface: React.FC<ChatInterfaceProps> = ({ initialMessage, onClose, title, botId, spaceId }) => {
+const ChatInterface: React.FC<ChatInterfaceProps> = ({ initialMessage, onClose, title, botId, spaceId, ttsOn }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -35,6 +36,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ initialMessage, onClose, 
   useEffect(() => {
     ttsEnabledRef.current = ttsEnabled;
   }, [ttsEnabled]);
+
+  useEffect(() => {
+    if (ttsOn) {
+      setTtsEnabled(true);
+      setTtsEnabledPref(true);
+    }
+  }, [ttsOn]);
 
   useEffect(() => {
     if (initialMessage) {

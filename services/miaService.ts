@@ -107,8 +107,9 @@ export const sendMessageToMia = async (
 ): Promise<ChatResponse> => {
 
   // 1. Fallback to Mock if no API Key is configured
+  console.log('[Mia] sendMessageToMia called', { message: message.substring(0, 50), hasApiKey: !!MIA_API_KEY, apiUrl: MIA_API_URL, botId: agentConfig?.botId || MIA_BOT_ID, spaceId: agentConfig?.spaceId || MIA_SPACE_ID });
   if (!MIA_API_KEY) {
-    console.log("No MIA_API_KEY found, using mock response.");
+    console.log("[Mia] No MIA_API_KEY found, using mock response.");
     const text = await generateMockResponse([]);
     // Simulate streaming for the UI
     if (onStreamUpdate) {
@@ -152,12 +153,18 @@ export const sendMessageToMia = async (
   try {
     let response = await performChatRequest();
 
-    // Check for "Chat not initialized" error
-    if (response.status === 404) {
+    // Check for "Chat not initialized" or "Space not found" errors (API may return 404 or 400)
+    console.log('[Mia] Chat response status:', response.status, 'content-type:', response.headers.get('content-type'));
+    if (response.status === 404 || response.status === 400) {
         const errorText = await response.text();
+        console.log(`[Mia] ${response.status} response body:`, errorText);
 
-        if (errorText.includes("Chat not initialized")) {
-            console.log("Chat not initialized. Attempting initialization...");
+        const needsInit = errorText.includes("Chat not initialized")
+            || errorText.includes("initialize_chat")
+            || errorText.includes("Space not found");
+
+        if (needsInit) {
+            console.log("[Mia] Chat needs initialization. Attempting...");
             const initResponse = await fetch(MIA_INIT_URL, {
                 method: 'POST',
                 headers: {
@@ -171,15 +178,19 @@ export const sendMessageToMia = async (
                 })
             });
 
+            console.log('[Mia] Init response status:', initResponse.status);
             if (!initResponse.ok) {
                 const initError = await initResponse.text();
+                console.error('[Mia] Init failed:', initError);
                 throw new Error(`Initialization failed (${initResponse.status}): ${initError}`);
             }
 
+            console.log('[Mia] Init succeeded, retrying chat...');
             // Retry the original chat request
             response = await performChatRequest();
+            console.log('[Mia] Retry response status:', response.status);
         } else {
-             throw new Error(`API Error 404: ${errorText}`);
+             throw new Error(`API Error ${response.status}: ${errorText}`);
         }
     }
 
@@ -239,7 +250,7 @@ export const sendMessageToMia = async (
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error("Mia21 Connection failed, falling back to mock:", errorMessage);
+    console.error("[Mia] Connection failed, falling back to mock:", errorMessage, error);
 
     // Graceful degradation
     const text = await generateMockResponse([]);
