@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Settings, Mic, Keyboard, Wrench, Clock, Heart, Plus, Trash2, Check, X, Calendar, Bell, Edit3, BookOpen, ChevronRight, ArrowLeft, MoreVertical, CheckCircle, Search } from 'lucide-react';
+import { Settings, Wrench, Clock, Heart, Plus, Trash2, Check, X, Calendar, Bell, Edit3, BookOpen, ChevronRight, ArrowLeft, MoreVertical, CheckCircle, Search } from 'lucide-react';
 import { MODULES } from '../constants';
 import { Module, ScreenName, Habit, SubModule } from '../types';
 import { 
@@ -783,31 +783,102 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
 
   return (
     <div className="px-6 pt-6 pb-12 min-h-screen" style={{ background: 'linear-gradient(160deg, #ede9fe 0%, #dbeafe 50%, #d1fae5 100%)' }}>
-      <div className="relative flex items-center justify-center mb-8">
-         <h1 className="text-xl font-bold text-slate-900">Sollevia</h1>
-         <button onClick={() => onNavigate('settings')} className="absolute right-0 text-slate-400 hover:text-slate-900 transition-colors p-2"><Settings size={24} strokeWidth={2} /></button>
+      <style>{`
+        @keyframes pulse-aura { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } }
+        @keyframes wave1 {
+          0%, 100% { transform: translate(0, -15%) scale(0.8); opacity: 0.8; }
+          30% { transform: translate(10%, -30%) scale(1.3); opacity: 1; }
+          60% { transform: translate(-5%, -20%) scale(0.9); opacity: 0.7; }
+        }
+        @keyframes wave2 {
+          0%, 100% { transform: translate(15%, 5%) scale(0.85); opacity: 0.7; }
+          25% { transform: translate(30%, -5%) scale(1.25); opacity: 1; }
+          50% { transform: translate(20%, 15%) scale(0.9); opacity: 0.6; }
+          75% { transform: translate(10%, 0%) scale(1.1); opacity: 0.9; }
+        }
+        @keyframes wave3 {
+          0%, 100% { transform: translate(-5%, 15%) scale(0.8); opacity: 0.7; }
+          20% { transform: translate(5%, 30%) scale(1.2); opacity: 1; }
+          45% { transform: translate(-15%, 25%) scale(1.3); opacity: 0.9; }
+          70% { transform: translate(10%, 15%) scale(0.85); opacity: 0.8; }
+        }
+        @keyframes wave4 {
+          0%, 100% { transform: translate(-15%, -5%) scale(0.85); opacity: 0.8; }
+          35% { transform: translate(-30%, 10%) scale(1.25); opacity: 1; }
+          65% { transform: translate(-20%, -10%) scale(0.9); opacity: 0.7; }
+        }
+        @keyframes wave5 {
+          0%, 100% { transform: translate(10%, 15%) scale(0.8); opacity: 0.7; }
+          20% { transform: translate(25%, 25%) scale(1.2); opacity: 1; }
+          50% { transform: translate(5%, 10%) scale(0.85); opacity: 0.6; }
+          80% { transform: translate(20%, 20%) scale(1.3); opacity: 0.9; }
+        }
+        @keyframes wave6 {
+          0%, 100% { transform: translate(-10%, -15%) scale(0.85); opacity: 0.7; }
+          30% { transform: translate(-25%, -5%) scale(1.2); opacity: 1; }
+          60% { transform: translate(-5%, -25%) scale(1.3); opacity: 0.9; }
+        }
+        @keyframes wave7 {
+          0%, 100% { transform: translate(5%, -10%) scale(0.9); opacity: 0.8; }
+          40% { transform: translate(-10%, -25%) scale(1.25); opacity: 1; }
+          70% { transform: translate(15%, -15%) scale(0.85); opacity: 0.7; }
+        }
+        @keyframes wave8 {
+          0%, 100% { transform: translate(-5%, 10%) scale(0.85); opacity: 0.7; }
+          35% { transform: translate(15%, 25%) scale(1.2); opacity: 1; }
+          65% { transform: translate(-15%, 15%) scale(1.3); opacity: 0.9; }
+        }
+      `}</style>
+      <div className="flex justify-end mb-4">
+         <button onClick={() => onNavigate('settings')} className="text-slate-400 hover:text-slate-900 transition-colors p-2"><Settings size={24} strokeWidth={2} /></button>
       </div>
-      
+
       {/* Check-in Section */}
-      <div className="mb-10">
-        <h2 className="text-xl font-bold text-slate-900 mb-4 tracking-tight">Check-in</h2>
-        <div onClick={() => onNavigate('chat_checkin')} className="bg-white rounded-2xl p-6 mb-6 cursor-pointer active:scale-[0.98] transition-transform border-l-2 border-indigo-300 shadow-card">
-          <p className="text-slate-700 leading-relaxed text-[15px] font-medium">Take a quiet moment to check-in with yourself. How are you feeling today - physically and emotionally? What's top on your mind?</p>
-        </div>
-        <div className="flex justify-center">
-          <div className="inline-flex items-center bg-white rounded-full border border-slate-200 shadow-md overflow-hidden">
-            <button onClick={() => onNavigate('chat_checkin', { ttsOn: true })} className="px-5 py-4 flex items-center justify-center text-indigo-600 hover:bg-slate-50 transition-colors active:scale-95"><Mic size={22} /></button>
-            <div className="w-px h-6 bg-slate-200" />
-            <button onClick={() => onNavigate('chat_checkin')} className="px-5 py-4 flex items-center justify-center text-indigo-600 hover:bg-slate-50 transition-colors active:scale-95"><Keyboard size={22} /></button>
+      <div className="mb-10 flex flex-col items-center">
+        <h2 className="text-2xl font-bold text-indigo-600 mb-8 tracking-tight">How are you feeling?</h2>
+
+        {/* AI Orb Ring */}
+        <div className="relative flex items-center justify-center mb-8">
+          {/* Aura glow */}
+          <div className="absolute w-56 h-56 rounded-full" style={{
+            background: 'radial-gradient(circle, rgba(59,130,246,0.7) 0%, rgba(6,182,212,0.5) 30%, rgba(167,139,250,0.35) 55%, transparent 75%)',
+            filter: 'blur(28px)',
+            animation: 'pulse-aura 4s ease-in-out infinite'
+          }} />
+          {/* Donut ring with wave blobs */}
+          <div className="w-32 h-32 rounded-full overflow-hidden relative" style={{
+            background: '#0a1628',
+            WebkitMask: 'radial-gradient(circle, transparent 50%, black 52%)',
+            mask: 'radial-gradient(circle, transparent 50%, black 52%)'
+          }}>
+            <div className="absolute rounded-full" style={{ width: '70%', height: '70%', top: '-15%', left: '15%', background: 'radial-gradient(circle, #2563eb 0%, transparent 65%)', filter: 'blur(6px)', animation: 'wave1 5s ease-in-out infinite' }} />
+            <div className="absolute rounded-full" style={{ width: '65%', height: '65%', top: '20%', left: '45%', background: 'radial-gradient(circle, #60a5fa 0%, transparent 65%)', filter: 'blur(6px)', animation: 'wave2 6.5s ease-in-out infinite' }} />
+            <div className="absolute rounded-full" style={{ width: '70%', height: '70%', top: '50%', left: '20%', background: 'radial-gradient(circle, #0284c7 0%, transparent 65%)', filter: 'blur(6px)', animation: 'wave3 5.5s ease-in-out infinite' }} />
+            <div className="absolute rounded-full" style={{ width: '65%', height: '65%', top: '15%', left: '-15%', background: 'radial-gradient(circle, #8b5cf6 0%, transparent 65%)', filter: 'blur(6px)', animation: 'wave4 7s ease-in-out infinite' }} />
+            <div className="absolute rounded-full" style={{ width: '60%', height: '60%', top: '45%', left: '50%', background: 'radial-gradient(circle, #22d3ee 0%, transparent 65%)', filter: 'blur(6px)', animation: 'wave5 6s ease-in-out infinite' }} />
+            <div className="absolute rounded-full" style={{ width: '60%', height: '60%', top: '-10%', left: '-10%', background: 'radial-gradient(circle, #a78bfa 0%, transparent 65%)', filter: 'blur(6px)', animation: 'wave6 7.5s ease-in-out infinite' }} />
+            <div className="absolute rounded-full" style={{ width: '55%', height: '55%', top: '5%', left: '40%', background: 'radial-gradient(circle, #38bdf8 0%, transparent 65%)', filter: 'blur(6px)', animation: 'wave7 5.8s ease-in-out infinite' }} />
+            <div className="absolute rounded-full" style={{ width: '55%', height: '55%', top: '40%', left: '-5%', background: 'radial-gradient(circle, #4f46e5 0%, transparent 65%)', filter: 'blur(6px)', animation: 'wave8 6.8s ease-in-out infinite' }} />
           </div>
         </div>
+
+        <div className="flex justify-center">
+          <button onClick={() => onNavigate('chat_checkin')} className="inline-flex items-center gap-2 bg-white rounded-full border border-slate-200 shadow-md pl-1.5 pr-4 py-1.5 hover:bg-slate-50 transition-colors active:scale-95">
+            <div className="w-7 h-7 rounded-full bg-indigo-600 flex items-center justify-center"><Plus size={14} className="text-white" /></div>
+            <span className="text-sm font-medium text-indigo-600">Check-in</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 mb-12 mt-2">
+        <div className="flex-1 h-px bg-indigo-200" />
       </div>
 
       {/* Today's Habits Section */}
       <div className="mb-10">
-        <h2 className="text-xl font-bold text-slate-900 mb-4 tracking-tight">Today</h2>
+        <h2 className="text-xl font-bold text-slate-900 mb-5 tracking-tight">Today</h2>
         {todaysHabits.length > 0 ? (
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {todaysHabits.map(habit => {
                 const isCompleted = (habit.completedDates || []).includes(todayStr);
                 const duration = getHabitDuration(habit);
@@ -816,10 +887,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
                      <div 
                         key={habit.id}
                         onClick={() => handleHabitClick(habit)}
-                        className={`relative flex items-center bg-white rounded-xl p-4 shadow-card border-l-2 border-indigo-200 transition-all cursor-pointer active:scale-[0.98] hover:shadow-card-hover`}
+                        className={`relative flex items-center bg-white rounded-2xl p-4 shadow-card border border-slate-100 cursor-pointer active:scale-[0.98]`}
                      >
                         {/* Icon */}
-                        <div className={`h-10 w-10 rounded-lg flex items-center justify-center mr-3 shrink-0 ${
+                        <div className={`h-10 w-10 rounded-xl flex items-center justify-center mr-3 shrink-0 ${
                             !habit.isCustom ? 'bg-indigo-50 text-indigo-600' : 'bg-purple-50 text-purple-600'
                         }`}>
                             {habit.isCustom ? <Edit3 size={18} /> : <Wrench size={18} />}
@@ -857,7 +928,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ onNavigate, viewMode = 'home', 
             })}
           </div>
         ) : (
-             <div className="bg-white rounded-xl p-6 border border-slate-100 text-center shadow-card">
+             <div className="bg-white rounded-2xl p-6 border border-slate-100 text-center shadow-card">
                 <p className="text-slate-500 text-sm mb-3">No habits scheduled for today.</p>
                 <button 
                     onClick={() => onNavigate('practice')}

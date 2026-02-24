@@ -1,10 +1,10 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ArrowUp, Mic, AudioLines, X, Loader, Volume2, VolumeX } from 'lucide-react';
 import { ChatMessage } from '../types';
 import { sendMessageToMia } from '../services/miaService';
 import { saveChatSession } from '../services/db';
-import { getTtsEnabled, setTtsEnabled as setTtsEnabledPref } from '../services/userData';
+import { setTtsEnabled as setTtsEnabledPref } from '../services/userData';
 import { SentenceChunker } from '../services/sentenceChunker';
 import { TtsQueue } from '../services/ttsQueue';
 import { transcribeAudio } from '../services/sttService';
@@ -24,7 +24,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ initialMessage, onClose, 
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [ttsEnabled, setTtsEnabled] = useState<boolean>(() => getTtsEnabled());
+  const [ttsEnabled, setTtsEnabled] = useState<boolean>(() => ttsOn === true);
   const [isRecording, setIsRecording] = useState(false);
   const [isTranscribing, setIsTranscribing] = useState(false);
   const [voiceMessageIds] = useState<Set<string>>(() => new Set());
@@ -187,9 +187,13 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ initialMessage, onClose, 
     await sendTextToBot(userText);
   };
 
-  // Voice recording handlers
+  // Voice recording handlers — enable TTS when user starts speaking
   const startRecording = () => {
     setIsRecording(true);
+    if (!ttsEnabled) {
+      setTtsEnabled(true);
+      setTtsEnabledPref(true);
+    }
   };
 
   const handleVoiceSend = async (blob: Blob, duration: number) => {
@@ -233,9 +237,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ initialMessage, onClose, 
     }
   };
 
-  const handleVoiceCancel = () => {
+  const handleVoiceCancel = useCallback(() => {
     setIsRecording(false);
-  };
+  }, []);
 
   const handleClose = async () => {
     ttsQueueRef.current.stopAll();
